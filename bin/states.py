@@ -10,3 +10,5 @@ class EnumStates(StrEnum):
     OUT_ACCOUNT = 'outcome_account'
     IN_CATEGORY = 'income_category'
     IN_ACCOUNT = 'income_account'
+    TRANSFER_FROM = 'transfer_from'
+    TRANSFER_TO = 'transfer_to'

@@ -8,8 +8,9 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 class MainButtons(StrEnum):
     ADD_OUTCOME = 'Добавить расходы'
     ADD_INCOME = 'Добавить доходы'
-    SHOW_ACCOUNTS = 'Посмотреть счета'
     SHOW_OUTCOMES = 'Посмотреть расходы'
+    SHOW_ACCOUNTS = 'Посмотреть счета'
+    ADD_TRANSACTION = 'Добавить транзакцию'
 
 
 def get_start_reply_kb() -> ReplyKeyboardMarkup:

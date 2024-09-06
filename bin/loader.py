@@ -6,6 +6,7 @@ from bin.routers import default
 from bin.routers.main import handlers as account
 from bin.routers.outcome import handlers as outcome
 from bin.routers.income import handlers as income
+from bin.routers.transfer import handlers as transfer
 
 
 async def run(token: str) -> None:
@@ -18,6 +19,7 @@ async def run(token: str) -> None:
         account.router,
         outcome.router,
         income.router,
+        transfer.router,
     )
 
     await set_default_commands(bot)

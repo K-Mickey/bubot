@@ -1,5 +1,23 @@
 import conf
 from bin import google_spreadsheets, utils
+from bin.states import EnumStates
+from bin.transaction import Transaction
+
+
+class Outcome(Transaction):
+    def __init__(self, data: dict, message: str = ''):
+        super().__init__(data, message)
+        self.category = data.get(EnumStates.OUT_CATEGORY, 'Категория')
+        self.account = data.get(EnumStates.OUT_ACCOUNT, 'Счёт')
+
+    def get_kb_args(self):
+        return self.date, self.category, self.account
+
+    def to_list(self):
+        return [self.date, self.category, self.amount, self.account, self.comment]
+
+    def is_empty(self):
+        return 'Категория' in self.category or 'Счёт' in self.account
 
 
 def get_last_outcomes(count: int = 1) -> str:

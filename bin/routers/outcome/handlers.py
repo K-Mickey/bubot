@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from aiogram_calendar import SimpleCalendar, SimpleCalendarCallback
 
-from bin import utils, transaction
+from bin import utils
 from bin.keyboards import MainButtons, create_simple_str_kb_from_list_and_data
 from bin.routers.outcome import utils as out_utils
 from bin.routers.outcome.keyboards import get_outcome_kb, OutcomeButtons
@@ -17,9 +17,10 @@ router = Router()
 @router.message(F.text == MainButtons.ADD_OUTCOME)
 async def start_outcome(message: Message, state: FSMContext, edit_last_message: bool = False):
     await state.set_state(OutcomeState.active)
-    trans = await transaction.get_from_state('outcome', state)
+    data = await state.get_data()
+    transaction = out_utils.Outcome(data)
 
-    kb = get_outcome_kb(*trans.get_kb_args())
+    kb = get_outcome_kb(*transaction.get_kb_args())
     text = ('<u>Настройте параметры через <b>клавиатуру</b>.</u>\n\n'
             'Введите <b>сумму расходов</b> и <b>комментарий</b> <i>через пробел</i>.\n'
             'Введите <b>Покажи <i>n</i></b>, для показа последних <i>n</i> расходов.')
@@ -32,11 +33,12 @@ async def start_outcome(message: Message, state: FSMContext, edit_last_message: 
 
 @router.message(OutcomeState.active, F.text.regexp(r'\d+(,\d+)?'))
 async def append_outcome(message: Message, state: FSMContext):
-    trans = await transaction.get_from_state('outcome', state, message.text)
-    if trans.is_empty_category_or_account():
+    data = await state.get_data()
+    transaction = out_utils.Outcome(data, message.text)
+    if transaction.is_empty():
         await message.answer('Необходимо выбрать категорию и счёт')
     else:
-        answer = out_utils.append_to_sheet(trans.to_list())
+        answer = out_utils.append_to_sheet(transaction.to_list())
         await message.answer(f'Расходы добавлены {answer['updates']['updatedRange']}')
 
 
