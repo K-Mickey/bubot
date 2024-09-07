@@ -24,7 +24,13 @@ def log_error(func):
 
 
 @log_error
-def append_values(sheet_id: str, range_: str, value_input_option: str, values: list) -> dict:
+def append_values(
+        sheet_id: str,
+        range_: str,
+        value_input_option: str,
+        values: list
+) -> dict:
+
     service = _connect()
     body = {
         'values': values

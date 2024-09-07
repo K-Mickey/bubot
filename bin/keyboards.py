@@ -25,7 +25,12 @@ def get_main_reply_kb() -> ReplyKeyboardMarkup:
     return get_reply_kb(buttons, row_width=2)
 
 
-def get_inline_kb_from_list(list_: list, data: Type[CallbackData], row_width: int = 1) -> InlineKeyboardMarkup:
+def get_inline_kb_from_list(
+        list_: list,
+        data: Type[CallbackData],
+        row_width: int = 1
+) -> InlineKeyboardMarkup:
+
     buttons = {item: data(value=item) for item in list_}
     return get_inline_kb(buttons, row_width=row_width)
 
