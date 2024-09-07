@@ -1,5 +1,6 @@
+import logging
+import os
 from datetime import datetime
-from typing import Tuple
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
@@ -9,51 +10,92 @@ from bin import google_spreadsheets
 from bin.states import EnumStates
 
 
+def get_logger(
+        log_file: str,
+        module_name: str,
+        log_level: str = conf.LOG_LEVEL
+) -> logging.Logger:
+
+    handler = logging.FileHandler(conf.LOG_PATH + log_file)
+    handler.setLevel(log_level)
+    formatter = logging.Formatter(conf.LOG_FORMAT)
+    handler.setFormatter(formatter)
+
+    log = logging.getLogger(module_name)
+    log.setLevel(log_level)
+    log.addHandler(handler)
+    return log
+
+
+def init_logging() -> None:
+    logging.basicConfig(
+        level=conf.LOG_LEVEL,
+        format=conf.LOG_FORMAT,
+    )
+
+
+async def make_dirs() -> None:
+    os.makedirs(conf.LOG_PATH, exist_ok=True)
+
+
 async def get_and_update_settings(state: FSMContext) -> None:
     settings_values = google_spreadsheets.get_values(
         conf.SHEET_ID,
         conf.SETTING_RANGE,
         major_dimension='COLUMNS',
     )
-    if not isinstance(settings_values, dict):
-        print('No values in settings sheet')
+    if not settings_values:
+        logger.info('Settings not found')
     else:
         await update_state_data(state, settings_values)
 
 
-async def update_state_data(state: FSMContext, settings_values: dict) -> None:
-    accounts, outcome_categories, _, income_categories = settings_values['values']
+async def update_state_data(state: FSMContext, values: list) -> None:
+    """
+    Important!
+    Values order depends on Sheet's order
+    """
+    accounts, outcome_categories, _, income_categories = values
     accounts = tuple(account for account in accounts if account)
     outcome_categories = tuple(category for category in outcome_categories if category)
     income_categories = tuple(category for category in income_categories if category)
 
     await state.update_data({
-            EnumStates.ACCOUNTS: accounts,
-            EnumStates.OUTCOME_CATEGORIES: outcome_categories,
-            EnumStates.INCOME_CATEGORIES: income_categories,
-        })
+        EnumStates.ACCOUNTS: accounts,
+        EnumStates.OUTCOME_CATEGORIES: outcome_categories,
+        EnumStates.INCOME_CATEGORIES: income_categories,
+    })
+
+    logger.debug(f'{accounts=}')
+    logger.debug(f'{outcome_categories=}')
+    logger.debug(f'{income_categories=}')
 
 
 def get_current_date() -> str:
     return datetime.date(datetime.now()).strftime('%d.%m.%Y')
 
 
-async def get_message_and_answer_query(callback_query: CallbackQuery) -> Message:
+async def get_message_and_callback_answer(callback_query: CallbackQuery) -> Message:
     await callback_query.answer()
     return callback_query.message
 
 
-def get_count_from_show_message(message: str) -> int:
+def get_count_from_message(message: str) -> int:
+    """example: "Покажи 5" -> 5"""
     message = message.strip()
     _, count = message.split(' ', 1)
+    logger.debug(count)
     if count.isdigit():
         return int(count)
-    else:
-        return 1
+    return 1
 
 
-def get_text_from_sheet_values(values: list) -> str:
+def format_sheet_values_to_text(values: list) -> str:
     strings = []
     for string in values:
         strings.append(' | '.join(map(lambda x: x.encode().decode(), string)))
+    logger.debug(strings)
     return '\n'.join(strings)
+
+
+logger = get_logger('utils.log', __name__)

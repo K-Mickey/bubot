@@ -31,7 +31,7 @@ def append_to_sheet(values: list) -> dict:
 
 def get_last_incomes(count: int = 1) -> str:
     values = get_last_values_from_sheet(count)
-    return utils.get_text_from_sheet_values(values)
+    return utils.format_sheet_values_to_text(values)
 
 
 def get_last_values_from_sheet(count: int = 1) -> list:

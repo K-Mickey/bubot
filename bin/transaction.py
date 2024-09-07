@@ -1,16 +1,17 @@
 from abc import abstractmethod
-from dataclasses import dataclass
 from typing import Tuple
-
-from aiogram.fsm.context import FSMContext
 
 from bin.states import EnumStates
 from bin.utils import get_current_date
 
 
 class Transaction:
+    """Base class for all transactions"""
     def __init__(self, data: dict, message: str = ''):
-        """type = 'outcome' or 'income'"""
+        """
+        :param data: dict with date key
+        :param message: message from user
+        """
         amount, comment = self._parse_message(message)
         self.date = data.get(EnumStates.DATE, get_current_date())
         self.amount = amount
@@ -18,14 +19,17 @@ class Transaction:
 
     @abstractmethod
     def get_kb_args(self):
+        """Data for keyboard"""
         pass
 
     @abstractmethod
     def to_list(self):
+        """All data in one list. Order is important for sheet"""
         pass
 
     @abstractmethod
     def is_empty(self):
+        """Check if transaction is empty"""
         pass
 
     @staticmethod

@@ -2,6 +2,7 @@ from enum import StrEnum
 
 
 class EnumStates(StrEnum):
+    """States for FSMContext"""
     ACCOUNTS = 'accounts'
     OUTCOME_CATEGORIES = 'outcome_categories'
     INCOME_CATEGORIES = 'income_categories'

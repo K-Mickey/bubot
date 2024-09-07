@@ -4,7 +4,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram_calendar import SimpleCalendar, SimpleCalendarCallback
 
 from bin import utils
-from bin.keyboards import MainButtons, create_simple_str_kb_from_list_and_data
+from bin.keyboards import MainButtons, get_inline_kb_from_list
 from bin.routers.outcome import utils as out_utils
 from bin.routers.outcome.keyboards import get_outcome_kb, OutcomeButtons
 from bin.routers.outcome.states import OutcomeState, OutcomeData, OutcomeCategoryData, OutcomeAccountData
@@ -44,14 +44,14 @@ async def append_outcome(message: Message, state: FSMContext):
 
 @router.message(OutcomeState.active, F.text.contains('Покажи'))
 async def get_outcome(message: Message, state: FSMContext):
-    count = utils.get_count_from_show_message(message.text)
+    count = utils.get_count_from_message(message.text)
     text = out_utils.get_last_outcomes(count)
     await message.answer(text)
 
 
 @router.callback_query(OutcomeState.active, OutcomeData.filter(F.value == OutcomeButtons.CATEGORY))
 async def choose_category(callback_query: CallbackQuery, state: FSMContext, callback_data: OutcomeData):
-    message = await utils.get_message_and_answer_query(callback_query)
+    message = await utils.get_message_and_callback_answer(callback_query)
     data = await state.get_data()
     outcome_categories = data.get(EnumStates.OUTCOME_CATEGORIES, [])
 
@@ -59,13 +59,13 @@ async def choose_category(callback_query: CallbackQuery, state: FSMContext, call
         await message.edit_text('Произошла ошибка. Нет доступных категорий. Выберите команду /start')
         print('No category')
     else:
-        kb = create_simple_str_kb_from_list_and_data(outcome_categories, OutcomeCategoryData, row_width=2)
+        kb = get_inline_kb_from_list(outcome_categories, OutcomeCategoryData, row_width=2)
         await message.edit_text('Выберите категорию', reply_markup=kb)
 
 
 @router.callback_query(OutcomeState.active, OutcomeData.filter(F.value == OutcomeButtons.DATE))
 async def choose_date(callback_query: CallbackQuery, state: FSMContext, callback_data: OutcomeData):
-    message = await utils.get_message_and_answer_query(callback_query)
+    message = await utils.get_message_and_callback_answer(callback_query)
     await message.edit_text(
         'Выберите дату',
         reply_markup=await SimpleCalendar().start_calendar()
@@ -76,7 +76,7 @@ async def choose_date(callback_query: CallbackQuery, state: FSMContext, callback
 async def process_dialog_calendar(
         callback_query: CallbackQuery, state: FSMContext, callback_data: SimpleCalendarCallback):
     selected, date = await SimpleCalendar().process_selection(callback_query, callback_data)
-    message = await utils.get_message_and_answer_query(callback_query)
+    message = await utils.get_message_and_callback_answer(callback_query)
 
     if selected:
         await callback_query.answer(f'{date.strftime("%d/%m/%Y")}')
@@ -87,7 +87,7 @@ async def process_dialog_calendar(
 
 @router.callback_query(OutcomeState.active, OutcomeData.filter(F.value == OutcomeButtons.ACCOUNT))
 async def choose_account(callback_query: CallbackQuery, state: FSMContext, callback_data: OutcomeData):
-    message = await utils.get_message_and_answer_query(callback_query)
+    message = await utils.get_message_and_callback_answer(callback_query)
     data = await state.get_data()
     accounts = data.get(EnumStates.ACCOUNTS, [])
 
@@ -95,13 +95,13 @@ async def choose_account(callback_query: CallbackQuery, state: FSMContext, callb
         await message.edit_text('Произошла ошибка. Нет доступных счетов. Выберите команду /start')
         print('No accounts')
     else:
-        kb = create_simple_str_kb_from_list_and_data(accounts, OutcomeAccountData)
+        kb = get_inline_kb_from_list(accounts, OutcomeAccountData)
         await message.edit_text('Выберите счёт', reply_markup=kb)
 
 
 @router.callback_query(OutcomeState.active, OutcomeCategoryData.filter())
 async def set_category(callback_query: CallbackQuery, state: FSMContext, callback_data: OutcomeCategoryData):
-    message = await utils.get_message_and_answer_query(callback_query)
+    message = await utils.get_message_and_callback_answer(callback_query)
     await state.update_data({EnumStates.OUT_CATEGORY: callback_data.value})
     await message.delete()
     await start_outcome(message, state)
@@ -109,7 +109,7 @@ async def set_category(callback_query: CallbackQuery, state: FSMContext, callbac
 
 @router.callback_query(OutcomeState.active, OutcomeAccountData.filter())
 async def set_account(callback_query: CallbackQuery, state: FSMContext, callback_data: OutcomeAccountData):
-    message = await utils.get_message_and_answer_query(callback_query)
+    message = await utils.get_message_and_callback_answer(callback_query)
     await state.update_data({EnumStates.OUT_ACCOUNT: callback_data.value})
     await message.delete()
     await start_outcome(message, state)
