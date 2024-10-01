@@ -20,9 +20,9 @@ def form_text_from_values(values: list, is_overspending: bool = False) -> str:
     return '\n'.join(strings)
 
 
-def decode_and_join_strings(strings: list,
-                            is_overspending: bool = False,
-                            sep: str = ' | ') -> list:
+def decode_and_join_strings(
+    strings: list, is_overspending: bool = False, sep: str = ' | '
+) -> list:
     join_strings = []
     for string in strings:
         if not string or not string[0]:
@@ -63,11 +63,11 @@ def get_accounts_from_sheet() -> list:
     return google_spreadsheets.get_values(
         conf.SHEET_ID,
         conf.MAIN_ACCOUNT_RANGE,
-    ).get('values', [])
+    )
 
 
 def get_outcomes_from_sheet() -> list:
     return google_spreadsheets.get_values(
         conf.SHEET_ID,
         conf.MAIN_OUTCOME_RANGE,
-    ).get('values', [])
+    )

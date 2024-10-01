@@ -1,4 +1,3 @@
-import logging
 import os
 from datetime import datetime
 
@@ -7,35 +6,8 @@ from aiogram.types import CallbackQuery, Message
 
 import conf
 from bin import google_spreadsheets
+from bin.logger import get_logger
 from bin.states import EnumStates
-
-
-def get_logger(
-        log_file: str,
-        module_name: str,
-        log_level: str = conf.LOG_LEVEL
-) -> logging.Logger:
-
-    handler = logging.FileHandler(conf.LOG_PATH + log_file)
-    handler.setLevel(log_level)
-    formatter = logging.Formatter(conf.LOG_FORMAT)
-    handler.setFormatter(formatter)
-
-    log = logging.getLogger(module_name)
-    log.setLevel(log_level)
-    log.addHandler(handler)
-    return log
-
-
-def init_logging() -> None:
-    logging.basicConfig(
-        level=conf.LOG_LEVEL,
-        format=conf.LOG_FORMAT,
-    )
-
-
-async def make_dirs() -> None:
-    os.makedirs(conf.LOG_PATH, exist_ok=True)
 
 
 async def get_and_update_settings(state: FSMContext) -> None:
@@ -57,14 +29,20 @@ async def update_state_data(state: FSMContext, values: list) -> None:
     """
     accounts, outcome_categories, _, income_categories = values
     accounts = tuple(account for account in accounts if account)
-    outcome_categories = tuple(category for category in outcome_categories if category)
-    income_categories = tuple(category for category in income_categories if category)
+    outcome_categories = tuple(
+        category for category in outcome_categories if category
+    )
+    income_categories = tuple(
+        category for category in income_categories if category
+    )
 
-    await state.update_data({
-        EnumStates.ACCOUNTS: accounts,
-        EnumStates.OUTCOME_CATEGORIES: outcome_categories,
-        EnumStates.INCOME_CATEGORIES: income_categories,
-    })
+    await state.update_data(
+        {
+            EnumStates.ACCOUNTS: accounts,
+            EnumStates.OUTCOME_CATEGORIES: outcome_categories,
+            EnumStates.INCOME_CATEGORIES: income_categories,
+        }
+    )
 
     logger.debug(f'{accounts=}')
     logger.debug(f'{outcome_categories=}')
@@ -75,7 +53,9 @@ def get_current_date() -> str:
     return datetime.date(datetime.now()).strftime('%d.%m.%Y')
 
 
-async def get_message_and_callback_answer(callback_query: CallbackQuery) -> Message:
+async def get_message_and_callback_answer(
+    callback_query: CallbackQuery,
+) -> Message:
     await callback_query.answer()
     return callback_query.message
 

@@ -1,16 +1,15 @@
-from AiogramStorages.storages import SQLiteStorage
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import BotCommand
+from aiogram_sqlite_storage.sqlitestore import SQLStorage
 
 import conf
+from bin.logger import get_logger
 from bin.routers import default
+from bin.routers.income import handlers as income
 from bin.routers.main import handlers as account
 from bin.routers.outcome import handlers as outcome
-from bin.routers.income import handlers as income
 from bin.routers.transfer import handlers as transfer
-from bin.utils import get_logger
-
 
 logger = get_logger('loader.log', __name__)
 
@@ -29,7 +28,7 @@ async def run(token: str) -> None:
 def get_storage() -> MemoryStorage:
     """Place to set storage"""
     logger.debug('Created memory storage')
-    return SQLiteStorage(db_path=conf.DB_PATH)
+    return SQLStorage(db_path=conf.DB_PATH)
 
 
 def include_routers(dp: Dispatcher) -> None:
@@ -58,5 +57,5 @@ async def set_default_commands(bot: Bot) -> None:
 def get_commands() -> list:
     """Add default commands here"""
     return [
-        BotCommand(command="start", description="Запустить бота"),
+        BotCommand(command='start', description='Запустить бота'),
     ]

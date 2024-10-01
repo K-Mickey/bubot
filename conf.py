@@ -5,14 +5,14 @@ from environs import Env
 env = Env()
 env.read_env()
 
-BOT_TOKEN = env.str("BOT_TOKEN")
-DB_PATH = 'src/bot.db'
-SHEET_ID = env.str("SHEET_ID")
+BOT_TOKEN = env.str('BOT_TOKEN')
+DB_PATH = 'src/bot.sqlite3'
+SHEET_ID = env.str('SHEET_ID')
 CREDENTIALS_FILE = 'bin/google_creds.json'
 
-LOG_LEVEL = env.str("LOG_LEVEL", 'INFO')
+LOG_LEVEL = env.str('LOG_LEVEL', 'INFO')
 LOG_FORMAT = '[%(asctime)s] [%(levelname)s] [%(name)s - %(filename)s] > %(lineno)d - %(message)s'
-LOG_PATH = Path('./src/logs')
+LOG_PATH = Path('src/logs')
 
 SETTING_RANGE = 'Настройки!A3:D35'
 OUTCOME_APPEND_RANGE = 'Расходы!A1'

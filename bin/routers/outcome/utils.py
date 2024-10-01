@@ -14,7 +14,13 @@ class Outcome(Transaction):
         return self.date, self.category, self.account
 
     def to_list(self):
-        return [self.date, self.category, self.amount, self.account, self.comment]
+        return [
+            self.date,
+            self.category,
+            self.amount,
+            self.account,
+            self.comment,
+        ]
 
     def is_empty(self):
         return 'Категория' in self.category or 'Счёт' in self.account
@@ -29,7 +35,7 @@ def get_last_values_from_sheet(count: int = 1) -> list:
     values = google_spreadsheets.get_values(
         conf.SHEET_ID,
         conf.OUTCOME_GET_RANGE,
-    ).get('values', [])
+    )
     return values[-count:]
 
 

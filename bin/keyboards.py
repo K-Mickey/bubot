@@ -5,14 +5,14 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardMarkup, ReplyKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
-from bin.utils import get_logger
-
+from bin.logger import get_logger
 
 logger = get_logger('keyboards.log', __name__)
 
 
 class MainButtons(StrEnum):
     """Buttons in main reply keyboard"""
+
     ADD_OUTCOME = 'Добавить расходы'
     ADD_INCOME = 'Добавить доходы'
     SHOW_OUTCOMES = 'Посмотреть расходы'
@@ -26,9 +26,7 @@ def get_main_reply_kb() -> ReplyKeyboardMarkup:
 
 
 def get_inline_kb_from_list(
-        list_: list,
-        data: Type[CallbackData],
-        row_width: int = 1
+    list_: list, data: Type[CallbackData], row_width: int = 1
 ) -> InlineKeyboardMarkup:
 
     buttons = {item: data(value=item) for item in list_}
