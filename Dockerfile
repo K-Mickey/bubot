@@ -12,5 +12,4 @@ RUN poetry install --only main
 
 COPY . .
 
-RUN . /usr/src/.venv/bin/activate
-CMD ["python", "main.py"]
+CMD ["poetry", "run", "python", "/usr/src/main.py"]
